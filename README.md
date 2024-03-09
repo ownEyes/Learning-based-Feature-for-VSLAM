@@ -106,7 +106,7 @@ The workflow GitHub recommends:
 
 Clone the project into local development environment:
 ```
-git clone git@github.com:ownEyes/Rental-Recommendation-System-in-Singapore.git
+git clone git@github.com:ownEyes/Learning-based-Feature-for-VSLAM.git
 ```
 You may see
 ```
