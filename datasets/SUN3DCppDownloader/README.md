@@ -3,7 +3,7 @@
 This folder is a tool to download data from the SUN3D server. (https://sun3d.csail.mit.edu/data/). 
 ## Usage
 
-Fist modify the name of the sequences in suned.sh
+Fist modify the sequences names in sequences.txt.
 ```
 chmod +x sun3d.sh
 ./sun3d.sh
