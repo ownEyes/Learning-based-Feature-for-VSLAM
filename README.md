@@ -278,6 +278,11 @@ git pull origin main
    
     If there are any conflicts between your local and remote branches, Git will prompt you to resolve them. After resolving any conflicts, you can commit the changes to complete the merge.
 
+Delete your branch from github, run 
+```
+git push origin --delete old-branch
+```
+
 Delete your branch locally
 ```
 git branch --delete old-branch
@@ -285,10 +290,7 @@ git branch --delete old-branch
 git branch -d old-branch
 ```
 
-Delete your branch from github, run 
-```
-git push origin --delete old-branch
-```
+
 **When you’re ready to work on a new feature, create a new branch.**
 
 ---
