@@ -1,6 +1,6 @@
 ## SUN3DCppDownloader
 
-This folder is a tool to download data from the SUN3D server. (https://sun3d.csail.mit.edu/data/). 
+This folder is a tool for downloading data from the SUN3D server with **parallel downloading** support. (https://sun3d.csail.mit.edu/data/). 
 ## Usage
 
 Fist modify the sequences names in sequences.txt.

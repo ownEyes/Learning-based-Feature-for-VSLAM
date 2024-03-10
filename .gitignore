@@ -164,3 +164,7 @@ cython_debug/
 datasets/sun3d/
 
 datasets/SUN3DCppDownloader/build/
+datasets/SUN3DCppDownloader/lib/
+datasets/SUN3DCppDownloader/bin/
+
+datasets/SUN3DCppDownloader/sequences.txt

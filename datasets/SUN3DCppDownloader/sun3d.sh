@@ -43,7 +43,7 @@ download_sequence() {
     local target_dir="$DATA_DIR"
     mkdir -p "$target_dir"
     echo "Downloading sequence: $sequence to $target_dir"
-    "$BUILD_DIR/SUN3DCppDownloader" "$sequence" "$target_dir"
+    "$SCRIPT_DIR/bin/SUN3D_Downloader" "$sequence" "$target_dir"
 }
 
 # Read each line from sequences file and download the sequence
