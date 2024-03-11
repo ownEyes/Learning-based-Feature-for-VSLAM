@@ -13,6 +13,6 @@ This folder contains a tool designed for extracting a subset of SUN3D dataset (h
 
 3. Extract **SIFT** features and use the **provided poses as initial guesses for bundle adjustment to update the relative pos**e of each frame pair. [[1]](#1)
 ## Paper References
-<a name="1"></a>[1] J. Tang, L. Ericson, J. Folkesson, and P. Jensfelt, “GCNv2: Efficient Correspondence Prediction for Real-Time SLAM,” IEEE Robot. Autom. Lett., pp. 1–1, 2019, doi: 10.1109/LRA.2019.2927954.
+<a id="1"></a>[1] J. Tang, L. Ericson, J. Folkesson, and P. Jensfelt, “GCNv2: Efficient Correspondence Prediction for Real-Time SLAM,” IEEE Robot. Autom. Lett., pp. 1–1, 2019, doi: 10.1109/LRA.2019.2927954.
 
-<a name="2"></a>[2] J. Tang, J. Folkesson, and P. Jensfelt, “Sparse2Dense: From direct sparse odometry to dense 3D reconstruction.” arXiv, Mar. 21, 2019. Accessed: Mar. 09, 2024. [Online]. Available: http://arxiv.org/abs/1903.09199
+<a id="2"></a>[2] J. Tang, J. Folkesson, and P. Jensfelt, “Sparse2Dense: From direct sparse odometry to dense 3D reconstruction.” arXiv, Mar. 21, 2019. Accessed: Mar. 09, 2024. [Online]. Available: http://arxiv.org/abs/1903.09199
