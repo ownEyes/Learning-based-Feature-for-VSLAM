@@ -52,3 +52,4 @@ while IFS= read -r sequence; do
 done < "$SEQUENCES_FILE"
 
 echo "All sequences have been downloaded."
+echo "Finished at: $(date '+%Y-%m-%d %H:%M:%S')"

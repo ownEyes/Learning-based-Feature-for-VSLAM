@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 # Project specific
-# dataset
+# dataset downloader
 datasets/sun3d/
 
 datasets/SUN3DCppDownloader/build/
@@ -168,3 +168,8 @@ datasets/SUN3DCppDownloader/lib/
 datasets/SUN3DCppDownloader/bin/
 
 datasets/SUN3DCppDownloader/sequences.txt
+
+# groundtruth optimizer
+datasets/SUN3DGroundtruthOptimizer/build/
+datasets/SUN3DGroundtruthOptimizer/lib/
+datasets/SUN3DGroundtruthOptimizer/bin/
