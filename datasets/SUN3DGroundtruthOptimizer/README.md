@@ -1,6 +1,6 @@
 ## SUN3DGroundtruthOptimizer
 
-This folder contains a tool designed for extracting a subset of SUN3D dataset (https://sun3d.cs.princeton.edu/data/) and optimzing groundtruth value using bundle adjustment. 
+This folder contains a tool designed for extracting a subset of [SUN3D dataset](https://sun3d.cs.princeton.edu/data/) and optimzing groundtruth value using bundle adjustment. 
 
 - Why we optimize the groundtruth?
 - "The ground truth poses provided are estimated by visual tracking with loop closure and so are relatively accurate in a global sense, but **have misalignments at the frame level**." [[1]](#1)
