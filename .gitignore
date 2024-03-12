@@ -173,3 +173,4 @@ datasets/SUN3DCppDownloader/sequences.txt
 datasets/SUN3DGroundtruthOptimizer/build/
 datasets/SUN3DGroundtruthOptimizer/lib/
 datasets/SUN3DGroundtruthOptimizer/bin/
+datasets/SUN3DGroundtruthOptimizer/.vscode

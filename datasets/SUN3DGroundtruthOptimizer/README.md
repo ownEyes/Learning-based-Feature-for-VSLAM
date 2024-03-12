@@ -12,6 +12,22 @@ This folder contains a tool designed for extracting a subset of [SUN3D dataset](
 2. Apply a standard **SIFT** keypoint detector to identify images that are likely to be noisy and **discard** images in which contains **less than 50** SIFT keypoints. [[2]](#2)
 
 3. Extract **SIFT** features and use the **provided poses as initial guesses for bundle adjustment to update the relative pos**e of each frame pair. [[1]](#1)
+
+## Dependency
+- jpeg(**Already installed in our WSL environment.**)
+In Ubuntu: 
+```
+sudo apt-get install libjpeg-turbo8-dev
+```
+
+- png. In Ubuntu: 
+```
+sudo apt-get install libpng++-dev
+```
+
+## Github Reference
+[PrincetonVision/SUN3DCppReader](https://github.com/PrincetonVision/SUN3DCppReader/tree/master)
+
 ## Paper References
 <a id="1"></a>[1] J. Tang, L. Ericson, J. Folkesson, and P. Jensfelt, “GCNv2: Efficient Correspondence Prediction for Real-Time SLAM,” IEEE Robot. Autom. Lett., pp. 1–1, 2019, doi: 10.1109/LRA.2019.2927954.
 
