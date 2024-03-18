@@ -14,15 +14,10 @@ This folder contains a tool designed for extracting a subset of [SUN3D dataset](
 3. Extract **SIFT** features and use the **provided poses as initial guesses for bundle adjustment to update the relative pos**e of each frame pair. [[1]](#1)
 
 ## Dependency
-- jpeg(**Already installed in our WSL environment.**)
-In Ubuntu: 
-```
-sudo apt-get install libjpeg-turbo8-dev
-```
 
-- png. In Ubuntu: 
+
 ```
-sudo apt-get install libpng++-dev
+sudo apt install libeigen3-dev libspdlog-dev libsuitesparse-dev qtdeclarative5-dev qt5-qmake libqglviewer-dev-qt5
 ```
 
 ## Github Reference

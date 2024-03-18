@@ -2,8 +2,6 @@
 
 using namespace std;
 
-_cam_k cam_K;
-
 void GetLocalFileNames(const string &dir, vector<string> *file_list)
 {
   DIR *dp;
@@ -100,23 +98,54 @@ cv::Mat GetDepth(const string &file_name)
 void GetExtrinsicData(const string &file_name, int size,
                       vector<extrinsic> *poses)
 {
-  FILE *fp = fopen(file_name.c_str(), "r");
+  ifstream file(file_name);
+  if (!file.is_open())
+  {
+    std::cerr << "Failed to open file: " << file_name << std::endl;
+    return;
+  }
 
   for (int i = 0; i < size; ++i)
   {
     extrinsic m;
     for (int d = 0; d < 3; ++d)
-    {
-      int iret;
-      iret = fscanf(fp, "%f", &m.R[d][0]);
-      iret = fscanf(fp, "%f", &m.R[d][1]);
-      iret = fscanf(fp, "%f", &m.R[d][2]);
-      iret = fscanf(fp, "%f", &m.t[d]);
+    { // Reading the rotation matrix R
+      file >> m.R[d][0] >> m.R[d][1] >> m.R[d][2];
+      if (file.fail())
+      {
+        cerr << "Failed to read rotation data for pose " << i << " at row " << d << endl;
+        return;
+      }
+      file >> m.translation[d];
+      if (file.fail())
+      {
+        cerr << "Failed to read translation data for pose " << i << endl;
+        return;
+      }
     }
+
     poses->push_back(m);
   }
+}
 
-  fclose(fp);
+void GetCameraK(const std::string &file_name, cv::Mat &K)
+{
+  ifstream file(file_name);
+  K = cv::Mat::zeros(3, 3, CV_32F);
+  if (!file.is_open())
+  {
+    cerr << "Failed to open file: " << file_name << endl;
+    return;
+  }
+  for (int d = 0; d < 3; ++d)
+  {
+    file >> K.at<float>(d, 0) >> K.at<float>(d, 1) >> K.at<float>(d, 2);
+    if (file.fail())
+    {
+      cerr << "Failed to read Camera K " << endl;
+      return;
+    }
+  }
 }
 
 int GetTimeStamp(const string &file_name)
