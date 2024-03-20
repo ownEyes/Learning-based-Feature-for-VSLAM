@@ -162,6 +162,7 @@ cython_debug/
 # Project specific
 # dataset downloader
 datasets/sun3d/
+datasets/sun3d_extracted/
 
 datasets/SUN3DCppDownloader/build/
 datasets/SUN3DCppDownloader/lib/

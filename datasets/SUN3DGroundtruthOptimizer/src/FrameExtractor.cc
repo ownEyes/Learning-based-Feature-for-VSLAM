@@ -173,6 +173,26 @@ void ExtractFrames(string local_dir)
     }
 
     extrinsicFile_new.close();
+
+    std::vector<extrinsic> relative_transformations;
+    relative_transformations= calculateRelativeTransformations(optimized_poses);
+
+    std::ofstream poseFile("relative_transformations.txt");
+    if (!poseFile.is_open())
+    {
+        std::cerr << "Failed to open one or more output files!" << std::endl;
+        // return 1;
+    }
+
+    for (const auto &pose : relative_transformations)
+    {
+        poseFile << std::fixed << std::setprecision(17)
+                          << pose.R[0][0] << " " << pose.R[0][1] << " " << pose.R[0][2] << " " << pose.translation[0] << " "
+                          << pose.R[1][0] << " " << pose.R[1][1] << " " << pose.R[1][2] << " " << pose.translation[1] << " "
+                          << pose.R[2][0] << " " << pose.R[2][1] << " " << pose.R[2][2] << " " << pose.translation[2] << "\n";
+    }
+
+    poseFile.close();
 }
 
 void KeypointTo3D(std::vector<vector<cv::KeyPoint>> &kpts,
@@ -216,4 +236,27 @@ void KeypointTo3D(std::vector<vector<cv::KeyPoint>> &kpts,
         }
     }
     return;
+}
+
+
+std::vector<extrinsic> calculateRelativeTransformations(const std::vector<extrinsic>& optimized_poses) {
+    std::vector<extrinsic> relative_transformations;
+
+    for (size_t i = 0; i < optimized_poses.size() - 1; ++i) {
+        // Get the SE3 representation of the current and next pose
+        Sophus::SE3d pose_current = optimized_poses[i].get_se3();
+        Sophus::SE3d pose_next = optimized_poses[i + 1].get_se3();
+
+        // Calculate the relative transformation (pose_next * inverse(pose_current))
+        Sophus::SE3d relative_transformation = pose_next * pose_current.inverse();
+
+        extrinsic re;
+
+        re.set_from_se3(relative_transformation);
+
+        // Store the relative transformation
+        relative_transformations.push_back(re);
+    }
+
+    return relative_transformations;
 }

@@ -21,4 +21,6 @@ void KeypointTo3D(std::vector<std::vector<cv::KeyPoint>> &kpts,
                   std::vector<int> &pointIndices,
                   std::vector<int> &camIndices);
 
+std::vector<extrinsic> calculateRelativeTransformations(const std::vector<extrinsic>& optimized_poses);
+
 #endif // FRAMEEXTRACTOR_HPP
