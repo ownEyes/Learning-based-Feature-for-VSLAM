@@ -177,3 +177,4 @@ datasets/SUN3DGroundtruthOptimizer/bin/
 datasets/SUN3DGroundtruthOptimizer/.vscode
 datasets/SUN4DGroundtruthOptimizer/3rdParty/g2o/build
 datasets/SUN3DGroundtruthOptimizer/3rdParty/Sophus/build
+datasets/SUN3DGroundtruthOptimizer/sequences.txt
