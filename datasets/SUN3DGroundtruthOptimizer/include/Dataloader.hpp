@@ -10,12 +10,25 @@
 #include <dirent.h>
 #include <cerrno>
 #include <cstdlib>
+#include <exception>
 
 #include <opencv2/opencv.hpp>
 #include <sophus/se3.hpp>
-#include <Eigen/Geometry> 
+#include <Eigen/Geometry>
 // #include <png++/png.hpp>
 // #include <jpeglib.h>
+
+void handleException(const std::exception &e, const char *file, int line);
+
+#define TRY_CATCH_BLOCK(code)                   \
+    try                                         \
+    {                                           \
+        code                                    \
+    }                                           \
+    catch (const std::exception &e)             \
+    {                                           \
+        handleException(e, __FILE__, __LINE__); \
+    }
 
 const int kImageRows = 480;
 const int kImageCols = 640;
@@ -45,64 +58,76 @@ typedef struct _cam_k
 
 } cam_K;
 
+typedef struct _extrinsic
+{
 
-typedef struct _extrinsic {
+    Sophus::SO3d rotation; // Rotation represented as an SO3 object
+    Eigen::Vector3d t;     // Translation vector using Eigen
+    Eigen::Matrix3d R_mat; // Directly store the rotation matrix
+    double R[3][3];        // Rotation matrix as a simple array
+    double translation[3]; // Translation vector as a simple array
+
     // Default constructor
-    _extrinsic() : t(Eigen::Vector3f::Zero()), translation{0.0f, 0.0f, 0.0f} {
-        Eigen::Matrix3f R_mat = Eigen::Matrix3f::Identity();
-        set_rotation_matrix(R_mat);
+    _extrinsic() : t(Eigen::Vector3d::Zero()), R_mat(Eigen::Matrix3d::Identity())
+    {
+        updateArrays();
+        rotation = Sophus::SO3d(R_mat);
     }
 
-    // Constructor to initialize from a data array
-    explicit _extrinsic(float* data_addr) {
-        set_from(data_addr);
-    }
-
-    // Populate the struct from a data array
-    void set_from(float* data_addr) {
-        Eigen::Map<Eigen::Matrix3f> R_mat(data_addr);
-        set_rotation_matrix(R_mat);
-        Eigen::Map<Eigen::Vector3f> t_vec(data_addr + 9);
-        t = t_vec;
-        std::copy(data_addr + 9, data_addr + 12, translation);
-    }
-
-    // Store the struct's data in a data array
-    void set_to(float* data_addr) {
-        Eigen::Map<Eigen::Matrix3f> R_mat(data_addr);
-        R_mat = rotation.matrix();
-        Eigen::Map<Eigen::Vector3f> t_vec(data_addr + 9);
-        t_vec = t;
-        std::copy(t.data(), t.data() + 3, data_addr + 9);
-    }
-
-    // Method to update the rotation matrix from an Eigen matrix
-    void set_rotation_matrix(const Eigen::Matrix3f& R_mat) {
-        rotation = Sophus::SO3f(R_mat);
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
+    // Update the simple array representations from the Eigen types
+    void updateArrays()
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
                 R[i][j] = R_mat(i, j);
             }
+            translation[i] = t[i];
         }
     }
 
     // Method to get an SE3 representation of the pose
-    Sophus::SE3f get_se3() const {
-        return Sophus::SE3f(rotation, t);
+    Sophus::SE3d get_se3() const
+    {
+        return Sophus::SE3d(rotation, t);
     }
 
     // Method to set the pose from an SE3 representation
-    void set_from_se3(const Sophus::SE3f& se3) {
+    void set_from_se3(const Sophus::SE3d &se3)
+    {
         rotation = se3.so3();
         t = se3.translation();
-        set_rotation_matrix(rotation.matrix());
-        std::copy(t.data(), t.data() + 3, translation);
+        R_mat = se3.rotationMatrix();
+        updateArrays();
     }
 
-    Sophus::SO3f rotation;  // Rotation represented as an SO3 object
-    Eigen::Vector3f t;  // Translation vector using Eigen
-    float R[3][3];  // Rotation matrix as a simple array
-    float translation[3];  // Translation vector as a simple array
+    // Ensure the rotation matrix is orthogonal
+    void makeOrthogonal()
+    {
+        Eigen::JacobiSVD<Eigen::Matrix3d> svd(R_mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        R_mat = svd.matrixU() * svd.matrixV().transpose();
+    }
+
+    // Method to set the pose from buffer representation
+    void update_from_arrays()
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                R_mat(i, j) = R[i][j];
+            }
+        }
+        // Make sure R is orthogonal by applying SVD
+        makeOrthogonal();
+
+        TRY_CATCH_BLOCK({
+            rotation = Sophus::SO3d(R_mat);
+        })
+
+        t = Eigen::Map<Eigen::Vector3d>(translation);
+    }
 } extrinsic;
 
 void GetLocalFileNames(const std::string &dir, std::vector<std::string> *file_list);

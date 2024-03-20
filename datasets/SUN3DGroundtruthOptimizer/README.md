@@ -15,7 +15,8 @@ This folder contains a tool designed for extracting a subset of [SUN3D dataset](
 
 ## Dependency
 
-
+- OpenCV
+- Dependency for Sophus:
 ```
 sudo apt install libeigen3-dev libspdlog-dev libsuitesparse-dev qtdeclarative5-dev qt5-qmake libqglviewer-dev-qt5
 ```

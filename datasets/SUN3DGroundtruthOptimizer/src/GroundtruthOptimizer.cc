@@ -15,8 +15,8 @@ int main(int argc, char **argv)
     {
         passwd *pw = getpwuid(getuid());
         std::string home_dir(pw->pw_dir);
-        sequence_name = "harvard_c11/hv_c11_2/";
-        local_dir = home_dir + "/data/sun3d/" + sequence_name;
+        sequence_name = "brown_bm_1/brown_bm_1/";
+        local_dir = home_dir + "/projects/Learning-based-Feature-for-VSLAM/datasets/sun3d/" + sequence_name;
     }
     else if (argc == 3)
     {

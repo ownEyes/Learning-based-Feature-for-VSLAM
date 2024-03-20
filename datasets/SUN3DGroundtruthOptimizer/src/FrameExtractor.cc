@@ -2,6 +2,22 @@
 
 using namespace std;
 
+#ifdef DEBUG
+void PrintMat(const cv::Mat &mat)
+{
+    for (int i = 0; i < mat.rows; i++)
+    {
+        for (int j = 0; j < mat.cols; j++)
+        {
+            // Use mat.at<float>(i, j) if your matrix type is CV_32F
+            // For double precision (CV_64F), use mat.at<double>(i, j)
+            std::cout << mat.at<float>(i, j) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+#endif
+
 void ExtractFrames(string local_dir)
 {
     string local_camera = local_dir + "intrinsics.txt";
@@ -11,6 +27,10 @@ void ExtractFrames(string local_dir)
 
     cv::Mat K;
     GetCameraK(local_camera, K);
+
+#ifdef DEBUG
+    PrintMat(K);
+#endif
 
     vector<string> image_list;
     vector<string> depth_list;
@@ -78,19 +98,22 @@ void ExtractFrames(string local_dir)
               });
 
     std::vector<std::string> sorted_extracted_image_list(extracted_image_list.size());
-    std::vector<string> sorted_extracted_depth_list(extracted_depth_list.size());          
-    std::vector<extrinsic> sorted_extracted_extrinsic_poses(extracted_extrinsic_poses.size()); 
+    std::vector<string> sorted_extracted_depth_list(extracted_depth_list.size());
+    std::vector<extrinsic> sorted_extracted_extrinsic_poses(extracted_extrinsic_poses.size());
+    std::vector<vector<cv::KeyPoint>> sorted_SIFTs(SIFTs.size());
 
     for (size_t i = 0; i < indices.size(); ++i)
     {
         sorted_extracted_image_list[i] = extracted_image_list[indices[i]];
         sorted_extracted_depth_list[i] = extracted_depth_list[indices[i]];
         sorted_extracted_extrinsic_poses[i] = extracted_extrinsic_poses[indices[i]];
+        sorted_SIFTs[i] = SIFTs[indices[i]];
     }
 
     extracted_image_list = std::move(sorted_extracted_image_list);
     extracted_depth_list = std::move(sorted_extracted_depth_list);
     extracted_extrinsic_poses = std::move(sorted_extracted_extrinsic_poses);
+    SIFTs = std::move(sorted_SIFTs);
 
     std::ofstream imageFile("extracted_images.txt");
     std::ofstream depthFile("extracted_depths.txt");
@@ -114,7 +137,8 @@ void ExtractFrames(string local_dir)
 
     for (const auto &pose : extracted_extrinsic_poses)
     {
-        extrinsicFile << pose.R[0][0] << " " << pose.R[0][1] << " " << pose.R[0][2] << " " << pose.translation[0] << " "
+        extrinsicFile << std::fixed << std::setprecision(17)
+                      << pose.R[0][0] << " " << pose.R[0][1] << " " << pose.R[0][2] << " " << pose.translation[0] << " "
                       << pose.R[1][0] << " " << pose.R[1][1] << " " << pose.R[1][2] << " " << pose.translation[1] << " "
                       << pose.R[2][0] << " " << pose.R[2][1] << " " << pose.R[2][2] << " " << pose.translation[2] << "\n";
     }
@@ -122,4 +146,74 @@ void ExtractFrames(string local_dir)
     imageFile.close();
     depthFile.close();
     extrinsicFile.close();
+
+    std::vector<Eigen::Vector3d> points3D;
+    std::vector<int> ptIdx;
+    std::vector<int> camIdx;
+
+    vector<extrinsic> optimized_poses;
+
+    KeypointTo3D(SIFTs, extracted_depth_list, extracted_extrinsic_poses, K, points3D, ptIdx, camIdx);
+
+    bundleAdjustment(points3D, SIFTs, extracted_extrinsic_poses, K, ptIdx, camIdx, optimized_poses);
+
+    std::ofstream extrinsicFile_new("optimized_extrinsics.txt");
+    if (!extrinsicFile_new.is_open())
+    {
+        std::cerr << "Failed to open one or more output files!" << std::endl;
+        // return 1;
+    }
+
+    for (const auto &pose : optimized_poses)
+    {
+        extrinsicFile_new << std::fixed << std::setprecision(17)
+                          << pose.R[0][0] << " " << pose.R[0][1] << " " << pose.R[0][2] << " " << pose.translation[0] << " "
+                          << pose.R[1][0] << " " << pose.R[1][1] << " " << pose.R[1][2] << " " << pose.translation[1] << " "
+                          << pose.R[2][0] << " " << pose.R[2][1] << " " << pose.R[2][2] << " " << pose.translation[2] << "\n";
+    }
+
+    extrinsicFile_new.close();
+}
+
+void KeypointTo3D(std::vector<vector<cv::KeyPoint>> &kpts,
+                  std::vector<std::string> &depth_list,
+                  std::vector<extrinsic> &poses,
+                  cv::Mat K,
+                  std::vector<Eigen::Vector3d> &worldpoints,
+                  std::vector<int> &pointIndices,
+                  std::vector<int> &camIndices)
+{
+    worldpoints.clear();
+    pointIndices.clear();
+    camIndices.clear();
+
+    for (size_t imgIndex = 0; imgIndex < kpts.size(); ++imgIndex)
+    {
+        cv::Mat depthImg = GetDepth(depth_list[imgIndex]); // Use GetDepth to read the depth image
+
+        for (const auto &keypoint : kpts[imgIndex])
+        {
+            float depth = depthImg.at<float>(keypoint.pt.y, keypoint.pt.x); // Access depth value
+
+            // Check if depth value is valid (non-zero)
+            if (depth <= 0)
+            {
+                continue; // Skip this keypoint if depth is invalid
+            }
+
+            // Convert from 2D pixel coordinates to 3D point in camera coordinates
+            Eigen::Vector3d point3D((keypoint.pt.x - K.at<float>(0, 2)) * depth / K.at<float>(0, 0),
+                                    (keypoint.pt.y - K.at<float>(1, 2)) * depth / K.at<float>(1, 1),
+                                    depth);
+
+            // Transform from camera coordinates to world coordinates using extrinsic parameters
+            Sophus::SE3d pose = poses[imgIndex].get_se3();
+            Eigen::Vector3d pointWorld = pose * point3D;
+
+            worldpoints.push_back(pointWorld);
+            pointIndices.push_back(worldpoints.size() - 1); // Index of the newly added world point
+            camIndices.push_back(imgIndex);                 // Index of the camera
+        }
+    }
+    return;
 }

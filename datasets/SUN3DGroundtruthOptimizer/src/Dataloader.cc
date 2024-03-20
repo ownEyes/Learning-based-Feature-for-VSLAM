@@ -2,6 +2,11 @@
 
 using namespace std;
 
+void handleException(const std::exception& e, const char* file, int line) {
+    std::cerr << "Exception caught: " << e.what() << std::endl;
+    std::cerr << "In file: " << file << ", line: " << line << std::endl;
+}
+
 void GetLocalFileNames(const string &dir, vector<string> *file_list)
 {
   DIR *dp;
@@ -42,7 +47,11 @@ cv::Mat GetDepth(const string &file_name)
       }
     }
   }
-  return depthData;
+  // Convert depth data to floating-point and scale
+    cv::Mat depthFloat;
+    depthData.convertTo(depthFloat, CV_32F, 1.0 / 1000);  // Convert and scale
+
+    return depthFloat;
 }
 
 // bool GetDepthData(const std::string &file_name, std::vector<ushort> &data) {
@@ -123,7 +132,7 @@ void GetExtrinsicData(const string &file_name, int size,
         return;
       }
     }
-
+    m.update_from_arrays();
     poses->push_back(m);
   }
 }

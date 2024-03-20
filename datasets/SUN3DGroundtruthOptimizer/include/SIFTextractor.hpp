@@ -6,5 +6,4 @@
 #include <vector>
 
 bool ExtractSIFTFeatures(const cv::Mat &image, int minFeatureCount, std::vector<cv::KeyPoint> &keyPoints);
-
 #endif // SIFTEXTRACTOR_HPP
