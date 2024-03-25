@@ -12,7 +12,7 @@ void bundleAdjustment(const std::vector<Eigen::Vector3d> &worldPoints,
 {
     // Initialize the sparse optimizer
     SparseOptimizer optimizer;
-    optimizer.setVerbose(true);
+    optimizer.setVerbose(false);
 
     // Choose the linear solver and block solver
     typedef g2o::BlockSolver_6_3 BlockSolverType;
@@ -79,7 +79,7 @@ void bundleAdjustment(const std::vector<Eigen::Vector3d> &worldPoints,
 
     int maxIterations = -1;           // Use -1 to indicate the setup should be based on gain
     int maxIterationsWithGain = 1000; // Maximum iterations if using gain-based termination
-    double gain = 1e-10;              // Termination gain threshold
+    double gain = 1e-15;              // Termination gain threshold
 
     if (maxIterations < 0)
     {
@@ -91,7 +91,16 @@ void bundleAdjustment(const std::vector<Eigen::Vector3d> &worldPoints,
     }
 
     optimizer.initializeOptimization();
-    optimizer.optimize(maxIterations); // maxIterations can be set to a default value or based on other criteria
+    int ret= optimizer.optimize(maxIterations); // maxIterations can be set to a default value or based on other criteria
+
+    if(ret >= 0){
+        std::cout<< "TIMES OF Global BA OPTIMIZATION: "<< ret <<std::endl;
+    }
+    else{
+        std::cerr << "Global BA OPTIMIZATION FAILED." << std::endl;
+        return;
+    }
+    
 
     new_poses.clear();              // Clearing the vector to store new poses
     new_poses.resize(poses.size()); // Resize to match the number of camera poses
