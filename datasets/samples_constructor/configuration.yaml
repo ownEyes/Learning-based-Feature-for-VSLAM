@@ -1,0 +1,3 @@
+dataset_path: "../sun3d_extracted/"
+output_path: "../sun3d_training/"
+poses_file: "refined_relatives.txt"

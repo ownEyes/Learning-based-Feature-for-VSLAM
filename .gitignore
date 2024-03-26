@@ -185,3 +185,4 @@ datasets/SUN3DGroundtruthOptimizer/sequences.txt
 
 # samples builder
 datasets/sun3d_training/
+datasets/samples_constructor/__pycache__/
