@@ -15,7 +15,36 @@ check_command() {
 SCRIPT_DIR=$(dirname "$(realpath "$0")")  # Get the real path to the script, resolving symlinks
 DATA_DIR="$SCRIPT_DIR/../sun3d/"
 EXTRACT_DIR="$SCRIPT_DIR/../sun3d_extracted/"
+MODEL_PATH="$SCRIPT_DIR/weights/SuperPointNet.pt"
 
+LIBTORCH_DIR="$SCRIPT_DIR/3rdParty/libtorch"
+
+# URL to the libtorch zip file
+LIBTORCH_URL="https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.2.1%2Bcu121.zip"
+
+# Check if libtorch exists
+if [ ! -d "$LIBTORCH_DIR" ]; then
+    echo "libtorch not found. Downloading..."
+    # Create 3rdParty directory if it doesn't exist
+    mkdir -p "$SCRIPT_DIR/3rdParty"
+    # Navigate to 3rdParty directory
+    cd "$SCRIPT_DIR/3rdParty"
+    # Download libtorch
+    wget -c "$LIBTORCH_URL" -O libtorch.zip
+    # Check if download was successful
+    if [ $? -eq 0 ]; then
+        echo "Download complete. Unzipping..."
+        # Unzip libtorch
+        unzip libtorch.zip
+        # Remove the zip file
+        rm libtorch.zip
+        echo "libtorch is ready."
+    else
+        echo "Failed to download libtorch."
+    fi
+else
+    echo "libtorch already exists."
+fi
 # Create EXTRACT_DIR if it doesn't exist
 mkdir -p "$EXTRACT_DIR"
 
@@ -41,9 +70,10 @@ fi
 process_sequence() {
     local sequence="${1}/"  # Append a slash to the end of the sequence name
     local target_dir="$DATA_DIR"
+    local model="$MODEL_PATH"
     mkdir -p "$target_dir"
-    echo "Extracting sequence: $sequence to $target_dir"
-    "$SCRIPT_DIR/bin/SUN3DGroundtruthOptimizer" "$sequence" "$target_dir"
+    echo "Extracting sequence: $sequence to $target_dir, loading SuperPoint model from path: $model"
+    "$SCRIPT_DIR/bin/SUN3DGroundtruthOptimizer" "$sequence" "$target_dir" "$model"
     # Define the directory where the extracted data will be stored
     EXTRACT_DIR="$SCRIPT_DIR/../sun3d_extracted/${sequence}"
     mkdir -p "$EXTRACT_DIR/img" "$EXTRACT_DIR/depth"
@@ -51,12 +81,12 @@ process_sequence() {
     # Copy images listed in extracted_images.txt to the /img directory
     while IFS= read -r line; do
         cp "$line" "$EXTRACT_DIR/img/"
-    done < "$SCRIPT_DIR/extracted_images.txt"
+    done < "./extracted_images.txt"
 
      # Copy depth maps listed in extracted_depths.txt to the /depth directory
     while IFS= read -r line; do
         cp "$line" "$EXTRACT_DIR/depth/"
-    done < "$SCRIPT_DIR/extracted_depths.txt"
+    done < "./extracted_depths.txt"
 
     # source ~/miniconda3/etc/profile.d/conda.sh
     # conda activate ros2_dl
@@ -65,15 +95,14 @@ process_sequence() {
     # evo_traj kitti "$SCRIPT_DIR/extracted_extrinsics.txt" "$SCRIPT_DIR/optimized_extrinsics.txt" -p --full_check --save_results "$EXTRACT_DIR/traj_results.zip"
 
     # Copy the extrinsic and intrinsic files to the new directory
-    mv "$SCRIPT_DIR/extracted_extrinsics.txt" "$EXTRACT_DIR/"
-    mv "$SCRIPT_DIR/optimized_extrinsics.txt" "$EXTRACT_DIR/"
-    mv "$SCRIPT_DIR/relative_transformations.txt" "$EXTRACT_DIR/"
+    mv "./extracted_extrinsics.txt" "$EXTRACT_DIR/"
+    mv "./optimized_extrinsics.txt" "$EXTRACT_DIR/"
+    mv "./relative_transformations.txt" "$EXTRACT_DIR/"
+    mv "./refined_relatives.txt" "$EXTRACT_DIR/"
+    mv "./refined_poses.txt" "$EXTRACT_DIR/"
     cp "$target_dir/$sequence/intrinsics.txt" "$EXTRACT_DIR/"
 
-    
-
-
-    rm -f "$SCRIPT_DIR/extracted_images.txt" "$SCRIPT_DIR/extracted_depths.txt"
+    rm -f "./extracted_images.txt" "./extracted_depths.txt"
 }
 
 # Read each line from sequences file and download the sequence

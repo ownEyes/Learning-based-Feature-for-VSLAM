@@ -60,6 +60,7 @@ typedef struct _cam_k
 
 typedef struct _extrinsic
 {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 
     Sophus::SO3d rotation; // Rotation represented as an SO3 object
     Eigen::Vector3d t;     // Translation vector using Eigen
