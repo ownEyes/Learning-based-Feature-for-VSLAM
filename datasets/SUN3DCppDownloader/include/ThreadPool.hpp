@@ -14,6 +14,7 @@ public:
     ~ThreadPool();
 
     void enqueue(std::function<void()> task);
+    void wait();
 
 private:
     // Vector to store worker threads
@@ -30,6 +31,12 @@ private:
 
     // Flag to indicate whether the thread pool should stop or not
     bool stop_ = false;
+
+    // Counter for tracking the number of enqueued tasks
+    size_t tasks_count_ = 0;
+
+    // Additional condition variable for waiting all tasks to be completed
+    std::condition_variable all_tasks_done_cv_;
 };
 
 #endif // THREAD_POOL_H
