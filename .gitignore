@@ -163,6 +163,8 @@ cython_debug/
 .vscode/
 # dataset downloader
 datasets/sun3d/
+datasets/TUM/
+datasets/KITTI/
 
 
 datasets/SUN3DCppDownloader/build/
@@ -186,3 +188,8 @@ datasets/SUN3DGroundtruthOptimizer/sequences.txt
 # samples builder
 datasets/sun3d_training/
 datasets/samples_constructor/__pycache__/
+training/notebooks/log/
+training/notebooks/models/
+*.pt
+*.pth
+*.zip
