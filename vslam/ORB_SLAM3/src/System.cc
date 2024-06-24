@@ -633,37 +633,91 @@ void System::SaveTrajectoryTUM(const string &filename)
     // cout << endl << "trajectory saved!" << endl;
 }
 
+// void System::SaveKeyFrameTrajectoryTUM(const string &filename)
+// {
+//     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
+
+//     vector<KeyFrame*> vpKFs = mpAtlas->GetAllKeyFrames();
+//     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+//     // Transform all keyframes so that the first keyframe is at the origin.
+//     // After a loop closure the first keyframe might not be at the origin.
+//     ofstream f;
+//     f.open(filename.c_str());
+//     f << fixed;
+
+//     for(size_t i=0; i<vpKFs.size(); i++)
+//     {
+//         KeyFrame* pKF = vpKFs[i];
+
+//        // pKF->SetPose(pKF->GetPose()*Two);
+
+//         if(pKF->isBad())
+//             continue;
+
+//         Sophus::SE3f Twc = pKF->GetPoseInverse();
+//         Eigen::Quaternionf q = Twc.unit_quaternion();
+//         Eigen::Vector3f t = Twc.translation();
+//         f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t(0) << " " << t(1) << " " << t(2)
+//           << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
+
+//     }
+
+//     f.close();
+// }
 void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 {
     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
 
     vector<KeyFrame*> vpKFs = mpAtlas->GetAllKeyFrames();
-    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+    cout << "Number of KeyFrames retrieved: " << vpKFs.size() << endl;
+
+    sort(vpKFs.begin(), vpKFs.end(), KeyFrame::lId);
+    cout << "KeyFrames sorted." << endl;
 
     // Transform all keyframes so that the first keyframe is at the origin.
     // After a loop closure the first keyframe might not be at the origin.
     ofstream f;
     f.open(filename.c_str());
+    if (!f.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
     f << fixed;
 
-    for(size_t i=0; i<vpKFs.size(); i++)
+    for (size_t i = 0; i < vpKFs.size(); i++)
     {
+        cout << "Processing KeyFrame " << i << endl;
         KeyFrame* pKF = vpKFs[i];
-
-       // pKF->SetPose(pKF->GetPose()*Two);
-
-        if(pKF->isBad())
+        
+        if (pKF == nullptr) {
+            cerr << "KeyFrame " << i << " is a nullptr." << endl;
             continue;
+        }
 
-        Sophus::SE3f Twc = pKF->GetPoseInverse();
+        if (pKF->isBad()) {
+            cout << "KeyFrame " << i << " is marked as bad." << endl;
+            continue;
+        }
+
+        cout << "Getting pose for KeyFrame " << i << endl;
+        Sophus::SE3f Twc;
+        try {
+            Twc = pKF->GetPoseInverse();
+        } catch (const std::exception &e) {
+            cerr << "Exception caught while getting pose for KeyFrame " << i << ": " << e.what() << endl;
+            continue;
+        }
+
         Eigen::Quaternionf q = Twc.unit_quaternion();
         Eigen::Vector3f t = Twc.translation();
         f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t(0) << " " << t(1) << " " << t(2)
           << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
-
+        cout << "KeyFrame " << i << " processed and written to file." << endl;
     }
 
     f.close();
+    cout << "Finished saving keyframe trajectory." << endl;
 }
 
 void System::SaveTrajectoryEuRoC(const string &filename)
