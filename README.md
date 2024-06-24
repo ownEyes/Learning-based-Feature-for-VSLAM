@@ -2,7 +2,7 @@
 Learning based method of feature point extraction for Visual SLAM.
 
 <p align="center">
-  <img src="assets/Animation1.gif" alt="alt text" width="800" height="350">
+  <img src="assets/Animation1.gif" alt="alt text" width="800" height="300">
 </p>
 
 Our work covers the entire process from training dataset construction, model design and training, to integrating the model into a downstream task, which is a popular visual SLAM framework, and validating the model’s performance.
@@ -10,7 +10,7 @@ Our work covers the entire process from training dataset construction, model des
  We followed the GCNv2-SLAM paper, implementing data preprocessing and using geometric constraints to construct training samples as described in the paper, making the training data publicly accessible in the future. 
  
 <p align="center">
-  <img src="assets/data.png" alt="alt text" width="800" height="600">
+  <img src="assets/data.png" alt="alt text" width="600" height="400">
 </p>
 
  We designed and implemented the network structure based on the paper’s descriptions and made timely adjustments to the network structure and loss functions based on issues encountered during experiments. 
