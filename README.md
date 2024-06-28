@@ -25,5 +25,3 @@ Our work covers the entire process from training dataset construction, model des
  
  Based on the issues and insights discovered in training sample construction, network structure, and integration with the SLAM system, future work includes adopting more stable and accurate methods for constructing training sample pairs, modifying the network structure to better suit this task, adjusting the SLAM framework and heuristic parameters to fit learning-based keypoint extraction methods, or exploring potential ways to enhance visual SLAM performance considering hardware advancements, trending of commercial solutions, and developments in computer vision models.
 
-We discovered some inconsistencies in the GCNv2-SLAM paper during the actual implementation process. For instance, the paper mentions the use of straight-through estimators to binarize the descriptor in the CNN model. However, the margin value for the descriptor loss suggests that a binarization layer was not used in the network structure. This conclusion was further confirmed by analyzing the torchscript code in the PyTorch
- model files provided in their GitHub repository.
